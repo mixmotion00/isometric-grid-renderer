@@ -2,6 +2,7 @@ using Mixmotion00.Grid;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class DemoDrawGridMesh : MonoBehaviour
@@ -26,6 +27,18 @@ public class DemoDrawGridMesh : MonoBehaviour
         //};
 
         //GridRenderer.DrawGrid(10, 10, 1, 1, drawLine, Color.white, Color.red);
+
+        GUIStyle style = new GUIStyle();
+        style.normal.textColor = Color.white;
+        style.fontSize = 7;
+
+        foreach (var item in visibleCrossess)
+        {
+            var p = item.Pos;
+            p.x -= 0.25f;
+            p.y += 0.2f;
+            Handles.Label(p, $"({item.Pos.x},{item.Pos.y})", style);
+        }
     }
 
     private void Start()
@@ -50,7 +63,7 @@ public class DemoDrawGridMesh : MonoBehaviour
 
             var drawLimit = new DrawLimit(Camera.main.transform.position, dlW, dlH);
 
-            GridRenderer.DrawGrid(100000, 100000, CellSzW, CellSzH, drawLine, Color.white, Color.red, drawLimit);
+            GridRenderer.DrawGrid(100000, 100000, CellSzW, CellSzH, drawLine, Color.white, Color.red, out visibleCrossess, drawLimit);
 
             ApplyMesh();
 
@@ -62,6 +75,8 @@ public class DemoDrawGridMesh : MonoBehaviour
     public Vector2 dlCenter;
     public float dlW;
     public float dlH;
+
+    private List<Cross> visibleCrossess = new List<Cross>();
 
     [ContextMenu("InitIsoGrid")]
     private void InitIsoGrid()
@@ -75,7 +90,7 @@ public class DemoDrawGridMesh : MonoBehaviour
 
         var drawLimit = new DrawLimit(dlCenter, dlW, dlH);
 
-        GridRenderer.DrawGrid(100000, 100000, CellSzW, CellSzH, drawLine, Color.white, Color.red, drawLimit);
+        GridRenderer.DrawGrid(100000, 100000, CellSzW, CellSzH, drawLine, Color.white, Color.red, out visibleCrossess,  drawLimit);
 
         ApplyMesh();
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI.Table;
 
@@ -154,12 +155,14 @@ namespace Mixmotion00.Grid
         public static void DrawGrid(int rows, int cols, float cellSizeW, float cellSizeH,
             Action<DrawLine> drawLine,
             Color squareCol, Color crossCol,
+            out List<Cross> visibleCrossess,
             DrawLimit? drawLimit = null)
         {
             ExecuteDrawGrid(rows, cols, cellSizeW, cellSizeH,
                 DrawSquare, DrawCross,
                 drawLine,
                 squareCol, crossCol,
+                out visibleCrossess,
                 drawLimit);
         }
 
@@ -167,6 +170,7 @@ namespace Mixmotion00.Grid
             Action<Square, Action<DrawLine>> drawSquares, Action<Cross, Action<DrawLine>> drawCross,
             Action<DrawLine> drawLine,
             Color squareCol, Color crossCol,
+            out List<Cross> visibleCrossess,
             DrawLimit? drawLimit = null)
         {
             float gridWidth = cols * cellSizeW;
@@ -257,6 +261,8 @@ namespace Mixmotion00.Grid
             {
                 drawCross(cross, drawLine);
             }
+
+            visibleCrossess = crosses;
         }
 
         private static bool WithinRange(DrawLimit drawLimit, Vector2 pos)
