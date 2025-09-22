@@ -32,7 +32,7 @@ public class DemoDrawGridMesh : MonoBehaviour
         style.normal.textColor = Color.white;
         style.fontSize = 7;
 
-        foreach (var item in visibleCrossess)
+        foreach (var item in VisibleCrossess)
         {
             var p = item.Pos;
             p.x -= 0.25f;
@@ -63,7 +63,7 @@ public class DemoDrawGridMesh : MonoBehaviour
 
             var drawLimit = new DrawLimit(Camera.main.transform.position, dlW, dlH);
 
-            GridRenderer.DrawGrid(100000, 100000, CellSzW, CellSzH, drawLine, Color.white, Color.red, out visibleCrossess, drawLimit);
+            GridRenderer.DrawGrid(100000, 100000, CellSzW, CellSzH, drawLine, Color.white, Color.red, out VisibleCrossess, drawLimit);
 
             ApplyMesh();
 
@@ -76,7 +76,7 @@ public class DemoDrawGridMesh : MonoBehaviour
     public float dlW;
     public float dlH;
 
-    private List<Cross> visibleCrossess = new List<Cross>();
+    public List<Cross> VisibleCrossess = new List<Cross>();
 
     [ContextMenu("InitIsoGrid")]
     private void InitIsoGrid()
@@ -90,7 +90,7 @@ public class DemoDrawGridMesh : MonoBehaviour
 
         var drawLimit = new DrawLimit(dlCenter, dlW, dlH);
 
-        GridRenderer.DrawGrid(100000, 100000, CellSzW, CellSzH, drawLine, Color.white, Color.red, out visibleCrossess,  drawLimit);
+        GridRenderer.DrawGrid(100000, 100000, CellSzW, CellSzH, drawLine, Color.white, Color.red, out VisibleCrossess,  drawLimit);
 
         ApplyMesh();
     }
