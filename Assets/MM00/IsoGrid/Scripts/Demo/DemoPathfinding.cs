@@ -6,14 +6,14 @@ using System.Collections.Generic;
 
 public class DemoPathfinding : MonoBehaviour
 {
+    [SerializeField] private string _readme = "Only works in Play Mode";
+
     public Vector2 From, Goal;
     [Header("Cell Configh")]
     public DemoDrawGridMesh demoGridMesh;
 
     private void OnDrawGizmos()
     {
-
-
         //var nodeFrom = new Node();
         //nodeFrom.Pos = From;
 
@@ -32,8 +32,8 @@ public class DemoPathfinding : MonoBehaviour
         //GridRenderer.DrawCross(new Cross(From, size, Color.green), drawLine);
         //GridRenderer.DrawCross(new Cross(Goal, size, Color.yellow), drawLine);
 
-
-        DisplayPath();
+        if(Application.isPlaying)
+            DisplayPath();
     }
 
     public string DebugStr = "";

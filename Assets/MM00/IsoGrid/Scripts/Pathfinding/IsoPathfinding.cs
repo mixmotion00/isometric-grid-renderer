@@ -1,11 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
+using Mixmotion00;
+using System;
 
 namespace Mixmotion00.Grid.Pathfinding
 {
-    public class Node
+    public interface IHeapItem<T> : IComparable<T>
+    {
+        int HeapIndex { get; set; }
+    }
+
+    public class Node : IHeapItem<Node>
     {
         public Node Parent { get; set; }
         public Vector2 Pos { get; set; }
@@ -13,6 +19,8 @@ namespace Mixmotion00.Grid.Pathfinding
         public float GCost { get; set; } //node from start
 
         public float FCost { get { return HCost + GCost; } }
+
+        public int HeapIndex { get; set; }
 
         public Node() { }
 
@@ -28,6 +36,14 @@ namespace Mixmotion00.Grid.Pathfinding
         {
             GCost = gCost;
             HCost = hCost;
+        }
+
+        // Compare nodes by FCost (and HCost as tiebreaker)
+        public int CompareTo(Node other)
+        {
+            int compare = FCost.CompareTo(other.FCost);
+            if (compare == 0) compare = HCost.CompareTo(other.HCost); // tie-breaker
+            return -compare; // because heap usually works with max priority
         }
     }
 
@@ -50,11 +66,6 @@ namespace Mixmotion00.Grid.Pathfinding
             return current;
         }
 
-        //public static bool IsDiagonal()
-        //{
-
-        //}
-
         public static List<Node> ShortestPath(List<Vector2> points, Vector2 start, Vector2 goal,
             int size, float cellW, float cellH)
         {
@@ -75,21 +86,23 @@ namespace Mixmotion00.Grid.Pathfinding
             }
 
             // Nodes to explore
-            var open = new List<Node> { startNode };
+            var open = new Heap<Node>(allNodes.Count);
+            open.Add(startNode);
             // Nodes already checked
-            var closed = new List<Node>();
+            var closed = new HashSet<Node>();
 
             while (open.Count > 0)
             {
                 // pick lowest F
-                Node current = GetLowestF(open);
+                //Node current = GetLowestF(open);
+                Node current = open.RemoveFirst();
 
                 // check if reach the goal
                 if (current.Pos == goalNode.Pos)
                     return ReconstructPath(goalNode); // reconstruct path
 
                 // move from open to close
-                open.Remove(current);
+                //open.Remove(current);
                 closed.Add(current);
 
                 var neighbors = GetNeighbors(current, allNodes, size, cellW, cellH);
@@ -103,7 +116,7 @@ namespace Mixmotion00.Grid.Pathfinding
                     float tentativeG = current.GCost + Distance(current, node);
 
                     // If new path to neighbor is better OR not yet in openList
-                    if (!open.Contains(node) || tentativeG < node.GCost)
+                    if (tentativeG < node.GCost || !open.Contains(node))
                     {
                         node.Parent = current;
                         node.GCost = tentativeG;
@@ -111,6 +124,11 @@ namespace Mixmotion00.Grid.Pathfinding
 
                         if (!open.Contains(node))
                             open.Add(node);
+                        else
+                            open.UpdateItem(node); // ✅ Make sure heap reorders correctly
+
+                        //if (!open.Contains(node))
+                        //    open.Add(node);
                     }
                 }
             }
@@ -118,17 +136,95 @@ namespace Mixmotion00.Grid.Pathfinding
             return null; //no path found
         }
 
-        private static Node GetLowestF(List<Node> nodes)
-        {
-            Node min = nodes[0];
-            foreach (Node n in nodes)
-            {
-                if (n.FCost < min.FCost)
-                    min = n;
-            }
+//        # old unused since changing to heap
+//        private static Node GetLowestF(List<Node> nodes)
+//        {
+//            Node min = nodes[0];
+//            foreach (Node n in nodes)
+//            {
+//                if (n.FCost < min.FCost)
+//                    min = n;
+//            }
 
-            return min;
-        }
+//            return min;
+//        }
+
+        // #old 29/9/2025 - without using heap
+        //public static List<Node> ShortestPath(List<Vector2> points, Vector2 start, Vector2 goal,
+        //    int size, float cellW, float cellH)
+        //{
+        //    // Create nodes
+        //    var allNodes = new List<Node>(); //inclusive start and goal
+        //    Node startNode = new();
+        //    Node goalNode = new();
+
+        //    foreach (var pt in points)
+        //    {
+        //        Node node = new Node(null, 0, 0, pt);
+        //        allNodes.Add(node);
+
+        //        if (pt == start)
+        //            startNode = node;
+        //        if (pt == goal)
+        //            goalNode = node;
+        //    }
+
+        //    // Nodes to explore
+        //    var open = new List<Node> { startNode };
+        //    // Nodes already checked
+        //    var closed = new List<Node>();
+
+        //    while (open.Count > 0)
+        //    {
+        //        // pick lowest F
+        //        Node current = GetLowestF(open);
+
+        //        // check if reach the goal
+        //        if (current.Pos == goalNode.Pos)
+        //            return ReconstructPath(goalNode); // reconstruct path
+
+        //        // move from open to close
+        //        open.Remove(current);
+        //        closed.Add(current);
+
+        //        var neighbors = GetNeighbors(current, allNodes, size, cellW, cellH);
+
+        //        // check neighbors
+        //        foreach (var node in neighbors)
+        //        {
+        //            if (closed.Contains(node))
+        //                continue;
+
+        //            float tentativeG = current.GCost + Distance(current, node);
+
+        //            // If new path to neighbor is better OR not yet in openList
+        //            if (!open.Contains(node) || tentativeG < node.GCost)
+        //            {
+        //                node.Parent = current;
+        //                node.GCost = tentativeG;
+        //                node.HCost = Heuristic(node, goalNode);
+
+        //                if (!open.Contains(node))
+        //                    open.Add(node);
+        //            }
+        //        }
+        //    }
+
+        //    return null; //no path found
+        //}
+
+        // #old unused since changing to heap
+        //private static Node GetLowestF(List<Node> nodes)
+        //{
+        //    Node min = nodes[0];
+        //    foreach (Node n in nodes)
+        //    {
+        //        if (n.FCost < min.FCost)
+        //            min = n;
+        //    }
+
+        //    return min;
+        //}
 
         private static float Distance(Node a, Node b)
         {
