@@ -7,6 +7,7 @@ using UnityEditor;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class DemoDrawGridMesh : MonoBehaviour
 {
+    public bool DrawLabel = true;
     public float width = 0.05f;
     public Material lineMaterial;
 
@@ -37,7 +38,10 @@ public class DemoDrawGridMesh : MonoBehaviour
             var p = item.Pos;
             p.x -= 0.25f;
             p.y += 0.2f;
-            Handles.Label(p, $"({item.Pos.x},{item.Pos.y})", style);
+#if UNITY_EDITOR
+            if(DrawLabel)
+                Handles.Label(p, $"({item.Pos.x},{item.Pos.y})", style);
+#endif
         }
     }
 

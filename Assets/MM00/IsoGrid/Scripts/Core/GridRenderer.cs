@@ -252,14 +252,17 @@ namespace Mixmotion00.Grid
                 }
             }
 
-            foreach (var diamond in diamonds)
+            if(drawLine != null) 
             {
-                drawSquares(diamond, drawLine);
-            }
+                foreach (var diamond in diamonds)
+                {
+                    drawSquares(diamond, drawLine);
+                }
 
-            foreach (var cross in crosses)
-            {
-                drawCross(cross, drawLine);
+                foreach (var cross in crosses)
+                {
+                    drawCross(cross, drawLine);
+                }
             }
 
             visibleCrossess = crosses;
